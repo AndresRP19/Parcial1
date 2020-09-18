@@ -1,0 +1,94 @@
+
+#configuracion DHCP
+# DHCP Server Configuration file.
+
+ ddns-update-style interim;
+ ignore client-updates;
+ authoritative;
+ allow booting;
+ allow bootp;
+ allow unknown-clients;
+
+ # internal subnet for my DHCP Server
+ subnet 172.168.1.0 netmask 255.255.255.0 {
+ range 172.168.1.21 172.168.1.151;
+ option domain-name-servers 172.168.1.11;
+ option domain-name "pxe.example.com";
+ option routers 172.168.1.11;
+ option broadcast-address 172.168.1.255;
+ default-lease-time 600;
+ max-lease-time 7200;
+
+ # IP of PXE Server
+ next-server 172.168.1.11;
+ filename "pxelinux.0";
+ }
+
+###############################################################################
+
+
+#Configuracion tftp
+{
+ socket_type = dgram
+ protocol    = udp
+ wait        = yes
+ user        = root
+ server      = /usr/sbin/in.tftpd
+ server_args = -s /var/lib/tftpboot
+ disable     = no
+ per_source  = 11
+ cps         = 100 2
+ flags       = IPv4
+}
+
+
+############################################################
+#Configuracion vsftpd
+
+anonymous_enable=YES
+local_enable=NO write_enable=NO
+local_umask=022
+dirmessage_enable=YES xferlog_std_format=YES
+xferlog_enable=YES
+listen=NO
+listen_ipv6=YES
+pam_service_name=vsftpd
+userlist_enable=YES
+tcp_wrappers=YES
+anon_root=/var/lib/tftpboot/data
+anon_max_rate=2048000
+
+
+############################################################
+
+# Local Hard Disk pxelinux.cfg default entry
+
+mkdir /var/lib/tftpboot/pxelinux.cfg
+
+echo"LABEL 1
+    MENU LABEL ^1) Boot local hard drive
+    MENU AUTOBOOT
+    MENU DEFAULT
+    LOCALBOOT 0
+
+LABEL 2
+    MENU LABEL ^2) Clonezilla Live -TFTP
+    KERNEL clonezilla/live/vmlinuz
+    APPEND ramdisk_size=32768 initrd=clonezilla/live/initrd.img boot=live union=overlay username=user config components noswap edd=on nomodeset noeject locales=en_US.UTF-8 keyboard-layouts=NONE net.ifnames=0 ocs_live_extra_param="" ocs_live_keymap="NONE" ocs_live_batch="yes" ocs_lang="en_US.UTF-8" vga=788 ip=frommedia nosplash  fetch=tftp://172.168.1.11/clonezilla/live/filesystem.squashfs
+
+LABEL 3
+    MENU LABEL ^3) Install CentOS 7 - NFS
+    kernel data/centos7_64Bit/images/pxeboot/vmlinuz
+    append initrd=data/centos7_64Bit/images/pxeboot/initrd.img inst.stage2=nfs:172.168.1.11:/var/lib/tftpboot/data/centos7_64Bit quiet
+
+LABEL 4
+    MENU LABEL ^4) Install CentOS 7 - FTP
+    kernel data/centos7_64Bit/images/pxeboot/vmlinuz
+    append initrd=data/centos7_64Bit/images/pxeboot/initrd.img inst.repo=ftp://172.168.1.11/centos7_64Bit
+
+
+
+#############################################################################
+
+
+echo "/var/lib/tftpboot/data  *(rw)" >> /etc/exports
