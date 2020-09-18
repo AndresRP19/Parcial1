@@ -1,0 +1,26 @@
+default vesamenu.c32
+prompt 0
+timeout 50
+
+
+# Local Hard Disk pxelinux.cfg default entry
+LABEL 1
+    MENU LABEL ^1) Boot local hard drive
+    MENU AUTOBOOT
+    MENU DEFAULT
+    LOCALBOOT 0
+
+LABEL 2
+    MENU LABEL ^2) Clonezilla Live -TFTP
+    KERNEL clonezilla/live/vmlinuz
+    APPEND ramdisk_size=32768 initrd=clonezilla/live/initrd.img boot=live union=overlay username=user config components noswap edd=on nomodeset noeject locales=en_US.UTF-8 keyboard-layouts=NONE net.ifnames=0 ocs_live_extra_param="" ocs_live_keymap="NONE" ocs_live_batch="yes" ocs_lang="en_US.UTF-8" vga=788 ip=frommedia nosplash  fetch=tftp://172.168.1.11/clonezilla/live/filesystem.squashfs
+
+LABEL 3
+    MENU LABEL ^3) Install CentOS 7 - NFS
+    kernel data/centos7_64Bit/images/pxeboot/vmlinuz
+    append initrd=data/centos7_64Bit/images/pxeboot/initrd.img inst.stage2=nfs:172.168.1.11:/var/lib/tftpboot/data/centos7_64Bit quiet
+
+LABEL 4
+    MENU LABEL ^4) Install CentOS 7 - FTP
+    kernel data/centos7_64Bit/images/pxeboot/vmlinuz
+    append initrd=data/centos7_64Bit/images/pxeboot/initrd.img inst.repo=ftp://172.168.1.11/centos7_64Bit
