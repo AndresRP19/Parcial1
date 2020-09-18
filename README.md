@@ -165,10 +165,5 @@ LABEL 4
     append initrd=data/centos7_64Bit/images/pxeboot/initrd.img inst.repo=ftp://172.168.1.11/centos7_64Bit
 Imagenes de la configuración de un cliente en virtual box
  
-Fig.1 Configuracion para estar en la misma red
 
- 
-Fig.2 Ram necesaria para correr ftp, los demás con 1024 
-
-Algunas imágenes del servidor corriendo
 
